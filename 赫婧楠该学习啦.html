@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fdf2f8">
+<link rel="manifest" href="manifest.json">
+<title>赫婧楠该学习啦</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --pink-50: #fdf2f8; --pink-100: #fce7f3; --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4; --pink-400: #f472b6; --pink-500: #ec4899;
+  --pink-600: #db2777; --pink-700: #be185d;
+  --rose-400: #fb7185; --rose-500: #f43f5e;
+  --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif;
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--pink-50);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden; position: fixed; inset: 0;
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ===== Animated Background ===== */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: linear-gradient(160deg, #fdf2f8 0%, #fce7f3 30%, #fdf2f8 60%, #fff1f2 100%);
+}
+.bg-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5;
+  animation: orbFloat 20s ease-in-out infinite alternate;
+}
+.bg-orb:nth-child(1) { width: 300px; height: 300px; background: var(--pink-200); top: -80px; right: -60px; }
+.bg-orb:nth-child(2) { width: 250px; height: 250px; background: #fecdd3; bottom: -60px; left: -40px; animation-delay: -7s; }
+.bg-orb:nth-child(3) { width: 200px; height: 200px; background: var(--pink-100); top: 40%; left: 50%; animation-delay: -14s; }
+@keyframes orbFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 15px) scale(0.95); }
+  100% { transform: translate(10px, -10px) scale(1.02); }
+}
+
+/* ===== Layout ===== */
+.screen {
+  display: none; flex-direction: column; align-items: center;
+  width: 100%; max-width: 400px; padding: 24px 28px;
+  position: relative; z-index: 1;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.screen.active { display: flex; opacity: 1; transform: translateY(0); }
+
+/* ===== Glass Card ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(236, 72, 153, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* ===== Header ===== */
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.header-icon {
+  width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--pink-400), var(--rose-400));
+  box-shadow: 0 2px 10px rgba(244, 114, 182, 0.35);
+  font-size: 16px; color: #fff;
+}
+.header-title { font-size: 20px; font-weight: 700; color: var(--slate-600); letter-spacing: 0.5px; }
+.header-sub { font-size: 12px; color: var(--slate-400); margin-bottom: 20px; }
+
+/* ===== Setting Card ===== */
+.setting-card { padding: 24px; width: 100%; margin-bottom: 24px; }
+.setting-label { font-size: 12px; font-weight: 600; color: var(--slate-400); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+.setting-input-wrap {
+  display: flex; align-items: baseline; justify-content: center; gap: 8px;
+}
+.setting-input {
+  width: 90px; border: none; outline: none; background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 48px; font-weight: 300; color: var(--pink-600);
+  text-align: center; caret-color: var(--pink-400);
+  border-bottom: 2px solid var(--pink-200);
+  transition: border-color 0.3s;
+  appearance: textfield; -moz-appearance: textfield;
+}
+.setting-input::-webkit-outer-spin-button,
+.setting-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.setting-input:focus { border-bottom-color: var(--pink-400); }
+.setting-unit { font-size: 16px; font-weight: 500; color: var(--slate-400); }
+.setting-hint { font-size: 11px; color: var(--slate-400); margin-top: 10px; text-align: center; }
+
+/* ===== Start Button ===== */
+.start-btn {
+  position: relative; width: 140px; height: 140px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--pink-400) 0%, var(--rose-400) 50%, var(--pink-500) 100%);
+  color: #fff; cursor: pointer;
+  box-shadow: 0 8px 32px rgba(244, 114, 182, 0.4), 0 2px 8px rgba(244, 114, 182, 0.2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  margin: 8px 0 28px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.start-btn::before {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-300), var(--rose-400));
+  z-index: -1; opacity: 0.3; filter: blur(12px);
+}
+.start-btn:hover { transform: scale(1.03); box-shadow: 0 12px 40px rgba(244, 114, 182, 0.5); }
+.start-btn:active { transform: scale(0.97); }
+.start-btn-text { font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+.start-btn-icon { font-size: 28px; line-height: 1; }
+
+/* ===== Today Card ===== */
+.today-card { padding: 14px 28px; text-align: center; }
+.today-label { font-size: 11px; font-weight: 600; color: var(--slate-400); letter-spacing: 1px; text-transform: uppercase; }
+.today-value { font-size: 22px; font-weight: 500; color: var(--pink-600); margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+/* ===== Study Screen ===== */
+.timer-wrap { position: relative; width: 260px; height: 260px; margin: 16px 0 20px; }
+.timer-wrap svg { position: absolute; inset: 0; }
+.timer-ring-bg { fill: none; stroke: var(--pink-100); stroke-width: 10; }
+.timer-ring-fg {
+  fill: none; stroke: url(#ringGrad); stroke-width: 10; stroke-linecap: round;
+  transform: rotate(-90deg); transform-origin: center;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 6px rgba(244,114,182,0.3));
+}
+.timer-inner {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.timer-label {
+  font-size: 12px; font-weight: 600; color: var(--slate-400);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;
+}
+.timer-digits {
+  font-size: 52px; font-weight: 300; color: var(--slate-600);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+
+.min-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 500; color: var(--pink-500);
+  padding: 8px 20px; border-radius: 24px; margin-bottom: 20px;
+}
+.min-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink-400); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ===== End Button ===== */
+.end-wrap { position: relative; width: 116px; height: 116px; }
+.end-btn {
+  position: absolute; top: 8px; left: 8px;
+  width: 100px; height: 100px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--pink-400), var(--rose-400));
+  color: #fff; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(244,114,182,0.35);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+}
+.end-btn.disabled {
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  box-shadow: 0 4px 16px rgba(100,116,139,0.15);
+  cursor: not-allowed;
+}
+.end-btn-main { font-size: 14px; font-weight: 600; }
+.end-btn-sub { font-size: 10px; font-weight: 500; opacity: 0.85; }
+.end-ring { position: absolute; inset: 0; fill: none; stroke: rgba(255,255,255,0.9); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; }
+
+.study-today-card { padding: 12px 28px; text-align: center; margin-top: 24px; }
+
+/* ===== Summary Overlay ===== */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 32px;
+}
+.overlay.active { display: flex; }
+
+.summary {
+  background: #fff; border-radius: 28px; padding: 36px 32px 28px; width: 100%; max-width: 320px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.summary-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px; border-radius: 20px;
+  background: linear-gradient(135deg, #fce7f3, #ffe4e6);
+  font-size: 32px; margin-bottom: 16px;
+}
+.summary-title { font-size: 22px; font-weight: 700; color: var(--slate-600); margin-bottom: 24px; }
+
+.summary-stats { background: var(--pink-50); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; }
+.summary-row-label { font-size: 14px; color: var(--slate-400); }
+.summary-row-value { font-size: 20px; font-weight: 600; color: var(--pink-600); font-variant-numeric: tabular-nums; }
+.summary-divider { border: none; border-top: 1px solid var(--pink-100); margin: 4px 0; }
+
+.summary-msg { font-size: 14px; color: var(--slate-400); margin-bottom: 24px; line-height: 1.6; }
+.summary-btn {
+  border: none; width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--pink-400), var(--rose-400));
+  color: #fff; font-size: 15px; font-weight: 600; border-radius: 14px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(244,114,182,0.3);
+  transition: transform 0.15s;
+}
+.summary-btn:active { transform: scale(0.97); }
+
+/* ===== Notification Banner ===== */
+.notif-banner {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  padding: 14px 20px; text-align: center;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--pink-100);
+  font-size: 13px; color: var(--slate-500);
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: none; } }
+.notif-banner.active { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.notif-banner-btn {
+  border: none; background: var(--pink-500); color: #fff;
+  padding: 5px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.notif-banner-dismiss {
+  border: none; background: transparent; color: var(--slate-400);
+  padding: 5px 10px; font-size: 12px; cursor: pointer; text-decoration: underline;
+}
+.notif-banner-dismiss {
+  border: none; background: transparent; color: var(--slate-400);
+  padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<!-- Notification Banner -->
+<div class="notif-banner" id="permBanner">
+  <span id="permBannerText">开启通知权限，才能在后台提醒哦</span>
+  <button class="notif-banner-btn" id="permBannerBtn" onclick="requestNotifPerm()">开启</button>
+  <button class="notif-banner-dismiss" onclick="dismissBanner()">忽略</button>
+</div>
+
+<!-- ===== Home ===== -->
+<div class="screen active" id="homeScreen">
+  <div class="header">
+    <div class="header-icon">&#10084;</div>
+    <span class="header-title">楠楠的学习时间</span>
+  </div>
+  <div class="header-sub">专注让你更优秀</div>
+
+  <div class="glass setting-card">
+    <div class="setting-label">最短学习时间</div>
+    <div class="setting-input-wrap">
+      <input class="setting-input" id="minTimeInput" type="number" inputmode="numeric" min="1" max="999" value="25">
+      <span class="setting-unit">分钟</span>
+    </div>
+    <div class="setting-hint">在达到最短时间前无法结束学习</div>
+  </div>
+
+  <button class="start-btn" onclick="startStudy()">
+    <span class="start-btn-text">开始学习</span>
+    <span class="start-btn-icon">📖</span>
+  </button>
+
+  <div class="glass today-card">
+    <div class="today-label">今日累计</div>
+    <div class="today-value" id="homeTodayTotal">00:00</div>
+  </div>
+</div>
+
+<!-- ===== Study ===== -->
+<div class="screen" id="studyScreen">
+  <div class="header">
+    <div class="header-icon">&#10084;</div>
+    <span class="header-title">楠楠的学习时间</span>
+  </div>
+  <div class="header-sub" id="studyDate"></div>
+
+  <div class="timer-wrap">
+    <svg viewBox="0 0 260 260" width="260" height="260">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/>
+          <stop offset="100%" stop-color="#fb7185"/>
+        </linearGradient>
+      </defs>
+      <circle class="timer-ring-bg" cx="130" cy="130" r="118"/>
+      <circle class="timer-ring-fg" id="timerRing" cx="130" cy="130" r="118"
+              stroke-dasharray="741.42" stroke-dashoffset="741.42"/>
+    </svg>
+    <div class="timer-inner">
+      <div class="timer-label" id="timerLabel">学习中</div>
+      <div class="timer-digits" id="timerDigits">00:00</div>
+    </div>
+  </div>
+
+  <div class="glass min-badge" id="minBadge">
+    <span class="dot"></span>
+    <span id="minBadgeText">最短 25 分钟，还需 25:00</span>
+  </div>
+
+  <div class="end-wrap">
+    <svg viewBox="0 0 116 116" width="116" height="116">
+      <circle class="end-ring" id="endRing" cx="58" cy="58" r="54"
+              stroke-dasharray="339.29" stroke-dashoffset="339.29"/>
+    </svg>
+    <button class="end-btn disabled" id="endBtn">
+      <span class="end-btn-main">结束学习</span>
+      <span class="end-btn-sub" id="endBtnSub">未到最短时间</span>
+    </button>
+  </div>
+
+  <div class="glass study-today-card">
+    <div class="today-label">今日累计</div>
+    <div class="today-value" id="studyTodayTotal">00:00</div>
+  </div>
+</div>
+
+<!-- ===== Summary ===== -->
+<div class="overlay" id="summaryOverlay">
+  <div class="summary">
+    <div class="summary-badge">🎉</div>
+    <div class="summary-title">楠楠真棒！</div>
+    <div class="summary-stats">
+      <div class="summary-row">
+        <span class="summary-row-label">本次学习</span>
+        <span class="summary-row-value" id="sumSession">--:--</span>
+      </div>
+      <hr class="summary-divider">
+      <div class="summary-row">
+        <span class="summary-row-label">今日累计</span>
+        <span class="summary-row-value" id="sumToday">--:--</span>
+      </div>
+    </div>
+    <div class="summary-msg" id="sumMsg"></div>
+    <button class="summary-btn" onclick="dismissSummary()">好的～</button>
+  </div>
+</div>
+
+<script>
+// ===== State =====
+let minMin = parseInt(localStorage.getItem('hjn_min') || '25');
+let startTs = null, elapsed = 0, tick = null, isOn = false;
+let nTimeouts = [];
+let lpTimer = null, lpMs = 0;
+const LP_TOTAL = 3000;
+
+// ===== Messages =====
+const MSG = [
+  { t:['楠楠～','楠楠呀～','楠楠宝贝～'], b:[
+    '休息一下就好啦，该回来学习了哦～ 💕','楠楠乖，玩一小会儿就够了，回来学习吧～ 💗',
+    '想你了～快回来学习呀～ 🌸','楠楠～学习使你更美丽哦～ ✨','偷偷玩手机被我发现了哦～快回来学习吧～ 💝']},
+  { t:['楠楠，该学习啦','楠楠～学习时间到','楠楠，回来吧'], b:[
+    '已经玩了一会儿了，回来学习吧，你可以的～','时间过得好快呀，楠楠快回来学习吧～',
+    '楠楠～再不回来我要担心了呢～','手机先放一放好不好？回来学习嘛～','楠楠，答应我回来学习好不好？']},
+  { t:['楠楠！','楠楠！注意！','楠楠！醒醒！'], b:[
+    '你说好要学习的，快放下手机回来吧。','楠楠，时间不等人的，赶紧回来学习。',
+    '已经过去不少时间了，别玩了，回来学习。','楠楠，认真点！你的学习任务还没完成呢。','再玩下去今天的学习计划就完不成了！']},
+  { t:['赫婧楠！','赫婧楠！！','赫婧楠！注意了！'], b:[
+    '你到底在干什么？都过去这么久了，快去学习！','赫婧楠！你在玩什么！快回来学习！',
+    '说好的自律呢？？快放下手机去学习！','你再不回来学习，别怪我不客气了！','赫婧楠！你对得起自己的学习计划吗？！']},
+  { t:['赫婧楠！！','赫婧楠！！醒醒！','赫婧楠！！够了！'], b:[
+    '再不回来学习我真的要生气了！你自己说的要好好学习！！','赫婧楠你是不是皮痒了！！快去学习！！',
+    '你还有脸玩手机？？学习去！！现在！！','我已经忍你很久了！！赶紧去学习！！','你要是再不学习，我可就真的生气了！！']},
+  { t:['赫婧楠！！！','赫婧楠！！！警告！','赫 婧 楠！！！'], b:[
+    '你再玩手机就完了！！立刻去学习！！！','手机有什么好玩的！！给我去学习！！！',
+    '我数到三！放下手机！！！','你是不是不想考好了？？快去学习！！！',
+    '最后警告！！！马上回来学习！！！','赫婧楠！！！你要气死我了！！！快学习！！！',
+    '再玩一分钟试试？？？学习去！！！','你完了！！！我记住了！！！快去学习！！！']}
+];
+const ENC = [
+  '楠楠真棒！继续保持哦～ 💪','楠楠最努力了！🌟','今天也是认真学习的楠楠呢～ 📚',
+  '学习的楠楠最可爱了！💕','楠楠辛苦啦！好好休息一下吧～ ☕','又进步了一点点呢！楠楠加油！✨',
+  '楠楠太厉害了！🎉','知识又增长了呢～楠楠棒棒的！🌈'
+];
+const ITVS = [600,420,300,180,120];
+const FURY = 60;
+
+// ===== Util =====
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const lvl = i => Math.min(i, 5);
+function fmt(s) {
+  s = Math.max(0, Math.floor(s));
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60), ss = s%60;
+  return h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+function tKey() { const d=new Date(); return `hjn_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function getTotal() { return parseInt(localStorage.getItem(tKey())||'0'); }
+function saveTotal(v) { localStorage.setItem(tKey(), String(v)); }
+function showScr(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  requestAnimationFrame(() => { el.classList.add('active'); });
+}
+
+// ===== Min Time Input =====
+const minInput = document.getElementById('minTimeInput');
+minInput.value = minMin;
+minInput.addEventListener('input', () => {
+  let v = parseInt(minInput.value);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 999) v = 999;
+  minMin = v;
+  localStorage.setItem('hjn_min', String(v));
+});
+minInput.addEventListener('blur', () => {
+  if (!minInput.value || parseInt(minInput.value) < 1) { minInput.value = 1; minMin = 1; }
+  localStorage.setItem('hjn_min', String(minMin));
+});
+
+// ===== Notifications =====
+let swReg = null;
+
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swReg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+  } catch(e) {}
+}
+
+function requestNotifPerm() {
+  if (!('Notification' in window)) {
+    document.getElementById('permBannerText').textContent = '当前浏览器不支持通知，请用 Safari 打开并添加到主屏幕';
+    document.getElementById('permBannerBtn').style.display = 'none';
+    return;
+  }
+  Notification.requestPermission().then(p => {
+    if (p === 'granted') {
+      document.getElementById('permBanner').classList.remove('active');
+      registerSW();
+    } else {
+      document.getElementById('permBannerText').textContent = '通知权限已被拒绝，请在系统设置中开启';
+      document.getElementById('permBannerBtn').style.display = 'none';
+    }
+  });
+}
+
+function dismissBanner() {
+  document.getElementById('permBanner').classList.remove('active');
+}
+
+async function pushNotif(t, b) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // iOS Safari requires Service Worker showNotification
+  if (swReg) {
+    try { await swReg.showNotification(t, { body: b, tag: 'hjn-' + Date.now(), renotify: true }); return; } catch(e) {}
+  }
+  // Desktop fallback
+  try { new Notification(t, { body: b, tag: 'hjn-' + Date.now() }); } catch(e) {}
+}
+function scheduleN() {
+  clearN(); let cum = 0;
+  for (let i = 0; i < 64; i++) {
+    cum += (i < ITVS.length) ? ITVS[i] : FURY;
+    const l = lvl(i), m = MSG[l];
+    const t = pick(m.t), b = pick(m.b);
+    nTimeouts.push(setTimeout(() => pushNotif(t, b), cum * 1000));
+  }
+}
+function clearN() { nTimeouts.forEach(t => clearTimeout(t)); nTimeouts = []; }
+
+document.addEventListener('visibilitychange', () => {
+  if (!isOn) return;
+  document.hidden ? scheduleN() : clearN();
+});
+
+// ===== Study =====
+function startStudy() {
+  const v = parseInt(minInput.value);
+  if (isNaN(v) || v < 1) { minInput.value = 1; minMin = 1; }
+  isOn = true; startTs = Date.now(); elapsed = 0;
+
+  const now = new Date();
+  document.getElementById('studyDate').textContent =
+    `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+
+  showScr('studyScreen'); updateUI();
+  tick = setInterval(() => { elapsed = Math.floor((Date.now() - startTs) / 1000); updateUI(); }, 1000);
+}
+
+const CIRC = 2 * Math.PI * 118;
+function updateUI() {
+  document.getElementById('timerDigits').textContent = fmt(elapsed);
+  document.getElementById('timerRing').style.strokeDashoffset = CIRC * (1 - Math.min(elapsed / 3600, 1));
+  document.getElementById('studyTodayTotal').textContent = fmt(getTotal() + elapsed);
+
+  const rem = minMin * 60 - elapsed;
+  const btn = document.getElementById('endBtn');
+  const badge = document.getElementById('minBadge');
+  const sub = document.getElementById('endBtnSub');
+  const badgeText = document.getElementById('minBadgeText');
+
+  if (rem > 0) {
+    btn.classList.add('disabled');
+    sub.textContent = '未到最短时间';
+    badge.style.display = '';
+    badgeText.textContent = `最短 ${minMin} 分钟，还需 ${fmt(rem)}`;
+  } else {
+    btn.classList.remove('disabled');
+    sub.textContent = '长按 3 秒';
+    badge.style.display = 'none';
+  }
+}
+
+function endStudy() {
+  isOn = false; clearInterval(tick); clearN();
+  const s = elapsed, tot = getTotal() + s;
+  saveTotal(tot);
+  document.getElementById('sumSession').textContent = fmt(s);
+  document.getElementById('sumToday').textContent = fmt(tot);
+  document.getElementById('sumMsg').textContent = pick(ENC);
+  document.getElementById('summaryOverlay').classList.add('active');
+}
+
+function dismissSummary() {
+  document.getElementById('summaryOverlay').classList.remove('active');
+  document.getElementById('homeTodayTotal').textContent = fmt(getTotal());
+  showScr('homeScreen');
+}
+
+// ===== Long Press =====
+const endBtn = document.getElementById('endBtn');
+const endRing = document.getElementById('endRing');
+const EC = 2 * Math.PI * 54;
+
+function lpStart(e) {
+  e.preventDefault();
+  if (endBtn.classList.contains('disabled')) return;
+  lpMs = 0; endRing.style.strokeDashoffset = EC;
+  lpTimer = setInterval(() => {
+    lpMs += 50;
+    endRing.style.strokeDashoffset = EC * (1 - Math.min(lpMs / LP_TOTAL, 1));
+    if (lpMs >= LP_TOTAL) { lpStop(); endStudy(); }
+  }, 50);
+}
+function lpStop() {
+  clearInterval(lpTimer); lpTimer = null; lpMs = 0;
+  endRing.style.strokeDashoffset = EC;
+}
+
+endBtn.addEventListener('mousedown', lpStart);
+endBtn.addEventListener('touchstart', lpStart, { passive: false });
+['mouseup','mouseleave'].forEach(e => endBtn.addEventListener(e, lpStop));
+['touchend','touchcancel'].forEach(e => endBtn.addEventListener(e, lpStop));
+
+// ===== Init =====
+document.getElementById('homeTodayTotal').textContent = fmt(getTotal());
+
+// Register Service Worker + check notification permission
+(async () => {
+  await registerSW();
+  if (!('Notification' in window)) {
+    document.getElementById('permBannerText').textContent = '当前环境不支持通知，请通过 HTTPS 访问并添加到主屏幕';
+    document.getElementById('permBannerBtn').style.display = 'none';
+    document.getElementById('permBanner').classList.add('active');
+  } else if (Notification.permission === 'granted') {
+    document.getElementById('permBanner').classList.remove('active');
+  } else {
+    document.getElementById('permBanner').classList.add('active');
+  }
+})();
+</script>
+</body>
+</html>
